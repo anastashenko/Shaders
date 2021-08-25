@@ -1,0 +1,53 @@
+#!/usr/bin/env python
+
+'''
+    Updates the file nodes of selected shader
+    node. Use the new texture file inputs for
+    updating the texture for the updated node
+    To use the inputs put the texture path
+    into variables: file1, file2, file3
+
+    File: ShaderNodes_update.py
+    Version: 1.0
+    Author: Anastasia Korol
+
+'''
+
+import maya.cmds as cmds
+
+def fileNodesUpdate():
+    # texture 1
+    file1 = (r'C:\Users\User\Downloads\textures\texture_yellow_1.png')
+    
+    # texture 2
+    file3 = (r'C:\Users\User\Downloads\textures\texture_blue_2.jpg')
+    
+    # mask texture
+    file2 = (r'C:\Users\User\Downloads\textures\mask_texture_stripes.png')
+    
+    filelist = [file1, file2, file3]
+    
+    
+    objattr = cmds.ls(selection=True)
+    
+    src = cmds.listConnections(objattr, s=True, d=False)
+    new = cmds.listConnections(src, s=True, d=False)
+    cmds.select(new)
+    oldNodeslist =  cmds.ls(selection=True)
+    string_list = [str(x) for x in oldNodeslist]
+    
+    for node1 in new:
+        newNode = cmds.createNode("file")
+        cmds.nodeCast(node1, newNode)
+        cmds.delete(node1)
+    
+    src = cmds.listConnections(objattr, s=True, d=False)
+    new = cmds.listConnections(src, s=True, d=False)
+    cmds.select(new)
+    nodeslist =  cmds.ls(selection=True)
+    
+    for i, f, n in zip (nodeslist, filelist, string_list):
+        cmds.setAttr('{}.fileTextureName'.format(i), f, type="string")
+        cmds.rename(i, n)
+        
+fileNodesUpdate()
