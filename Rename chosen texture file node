@@ -1,0 +1,81 @@
+#!/usr/bin/env python
+
+'''
+    Renames any chosen file node texture 
+    with name printed by the user.
+    
+    File: TextureFile_Renamer.py
+    Version: 1.0
+    Author: Anastasia Korol
+
+'''
+
+
+import maya.cmds as mc
+import os
+
+
+class TextureFile_Renamer():
+    def __init__(self):
+        self.window = 'TextureRenamer'
+        self.title = 'Texture Renamer Window'
+        self.size = (300, 100)
+        self.createWindow()
+        
+    def createWindow(self):
+        if cmds.window(self.window, exists = True):
+            cmds.deleteUI(self.window, window = True)
+            
+        self.window = cmds.window(self.window, title = self.title, widthHeight = self.size)
+        
+        
+        self.mainForm = cmds.formLayout(numberOfDivisions = 100);
+        
+        self.titleDisplay = cmds.text(label = self.title, align="center", font = 'boldLabelFont')
+        cmds.formLayout(self.mainForm, edit = True, attachForm=( [self.titleDisplay, 'top', 5],
+                                                                 [self.titleDisplay, 'left', 5],
+                                                                 [self.titleDisplay, 'right', 5] ))
+                                                                 
+                                                                 
+        
+        self.titleSeparator = cmds.separator();
+        cmds.formLayout(self.mainForm, edit=True, attachControl = [self.titleSeparator, 'top', 10, self.titleDisplay],
+                                                  attachForm = ([self.titleSeparator, 'left', 5],
+                                                                [self.titleSeparator, 'right', 5] ))
+        
+        
+                                                  
+        
+        self.textFieldRename = cmds.textFieldGrp('TextureNewName', l="Replace with: ", editable=True)
+        cmds.formLayout(self.mainForm, edit=True, attachControl = [self.textFieldRename, 'top', 30, self.titleDisplay],
+                                                  attachForm = [self.textFieldRename, 'left', 5])
+ 
+        
+        self.btnRenamer = cmds.button(label='Rename Texture File', height=30, width=150, command=self.renameTexture)
+        cmds.formLayout(self.mainForm, edit=True, attachControl = [self.btnRenamer, 'top', 30, self.textFieldRename],
+                                                  attachForm = [self.btnRenamer, 'left', 80])
+        
+        
+        cmds.setParent('..')
+        cmds.showWindow()
+
+    def renameTexture(self, *args):
+        fileNode = cmds.ls(type='file', selection=True)
+        RenamerButton = cmds.textFieldGrp('TextureNewName', q=True, text=True)
+        print fileNode
+
+        for f in fileNode:
+            getCurrentImagePath = cmds.getAttr("%s.fileTextureName"%f)
+            print getCurrentImagePath
+            fileEndings = ('.psd','.PSD','.jpg','JPG','.jpeg','.JPEG','.tga','.TGA','.png','.PNG','.tiff','.TIFF','.bmp','.BMP')
+            if getCurrentImagePath.endswith(fileEndings):
+                new = os.path.split(getCurrentImagePath)[1].split('.')[0]
+                print new
+                newPath = getCurrentImagePath.replace(new, RenamerButton)
+                print newPath
+                os.rename(getCurrentImagePath, newPath)
+            else:
+                cmds.warning(items + 'Not valid file.')
+
+TextureFile_Renamer()
+         
